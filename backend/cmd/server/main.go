@@ -5,6 +5,10 @@ import (
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/configs"
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/database"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/handlers"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/repositories"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/routes"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
@@ -27,7 +31,13 @@ func main() {
 	}
 	defer db.Close()
 
+	clientRepo := repositories.NewClientRepository(db)
+	clientService := services.NewClientService(clientRepo)
+	clientHandler := handlers.NewClientHandler(clientService)
+
 	app := fiber.New()
+
+	routes.Setup(app, clientHandler)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }

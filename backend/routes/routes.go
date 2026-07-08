@@ -5,14 +5,25 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Setup(app *fiber.App, clientHandler *handlers.ClientHandler) {
+func Setup(
+	app *fiber.App,
+	clientHandler *handlers.ClientHandler,
+	documentHandler *handlers.DocumentHandler,
+) {
 	api := app.Group("/api")
 
 	clients := api.Group("/clients")
-
 	clients.Post("/", clientHandler.CreateClient)
 	clients.Get("/", clientHandler.GetAllClients)
 	clients.Get("/:id", clientHandler.GetClientByID)
 	clients.Put("/:id", clientHandler.UpdateClient)
 	clients.Delete("/:id", clientHandler.DeleteClient)
+
+	documents := api.Group("/documents")
+	documents.Post("/", documentHandler.CreateDocument)
+	documents.Get("/", documentHandler.GetAllDocuments)
+	documents.Get("/:id", documentHandler.GetDocumentByID)
+	documents.Put("/:id", documentHandler.UpdateDocument)
+	documents.Delete("/:id", documentHandler.DeleteDocument)
+	documents.Post("/:id/duplicate", documentHandler.DuplicateDocument)
 }

@@ -19,25 +19,29 @@ func main() {
 	}
 
 	cfg, err := configs.Load()
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	db, err := database.Connect(cfg.DatabaseURL)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
+	// Client
 	clientRepo := repositories.NewClientRepository(db)
 	clientService := services.NewClientService(clientRepo)
 	clientHandler := handlers.NewClientHandler(clientService)
 
+	// Document
+	documentRepo := repositories.NewDocumentRepository(db)
+	documentService := services.NewDocumentService(documentRepo)
+	documentHandler := handlers.NewDocumentHandler(documentService)
+
 	app := fiber.New()
 
-	routes.Setup(app, clientHandler)
+	routes.Setup(app, clientHandler, documentHandler)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }

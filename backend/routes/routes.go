@@ -9,6 +9,7 @@ func Setup(
 	app *fiber.App,
 	clientHandler *handlers.ClientHandler,
 	documentHandler *handlers.DocumentHandler,
+	userHandler *handlers.UserHandler,
 ) {
 	api := app.Group("/api")
 
@@ -26,4 +27,14 @@ func Setup(
 	documents.Put("/:id", documentHandler.UpdateDocument)
 	documents.Delete("/:id", documentHandler.DeleteDocument)
 	documents.Post("/:id/duplicate", documentHandler.DuplicateDocument)
+
+	auth := api.Group("/auth")
+	auth.Post("/register", userHandler.Register)
+	auth.Post("/login", userHandler.Login)
+
+	users := api.Group("/users")
+	users.Get("/", userHandler.GetAllUsers)
+	users.Get("/:id", userHandler.GetUserByID)
+	users.Put("/:id", userHandler.UpdateUser)
+	users.Delete("/:id", userHandler.DeleteUser)
 }

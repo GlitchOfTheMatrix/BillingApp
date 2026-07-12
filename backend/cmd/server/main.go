@@ -39,9 +39,14 @@ func main() {
 	documentService := services.NewDocumentService(documentRepo)
 	documentHandler := handlers.NewDocumentHandler(documentService)
 
+	// User
+	userRepo := repositories.NewUserRepository(db)
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+
 	app := fiber.New()
 
-	routes.Setup(app, clientHandler, documentHandler)
+	routes.Setup(app, clientHandler, documentHandler, userHandler)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }

@@ -19,7 +19,18 @@ func NewDocumentService(repo *repositories.DocumentRepository) *DocumentService 
 }
 
 func (s *DocumentService) CreateDocument(document *models.Document) error {
+	now := time.Now()
+
 	document.ID = uuid.New()
+	document.CreatedAt = now
+	document.UpdatedAt = now
+
+	for i := range document.Items {
+		document.Items[i].ID = uuid.New()
+		document.Items[i].DocumentID = document.ID
+		document.Items[i].CreatedAt = now
+		document.Items[i].UpdatedAt = now
+	}
 
 	return s.repo.Create(document)
 }
@@ -33,6 +44,14 @@ func (s *DocumentService) GetAllDocuments() ([]models.Document, error) {
 }
 
 func (s *DocumentService) UpdateDocument(document *models.Document) error {
+	document.UpdatedAt = time.Now()
+
+	for i := range document.Items {
+		document.Items[i].ID = uuid.New()
+		document.Items[i].DocumentID = document.ID
+		document.Items[i].UpdatedAt = time.Now()
+	}
+
 	return s.repo.Update(document)
 }
 
@@ -50,12 +69,12 @@ func (s *DocumentService) DuplicateDocument(id uuid.UUID) (*models.Document, err
 	oldId := document.ID
 
 	document.ID = uuid.New()
-	document.DocumentNumber = GenerateDocumentNumber()
+	// document.DocumentNumber = GenerateDocumentNumber()
 	document.Status = models.DocumentStatusDraft
 	document.CreatedAt = time.Now()
 	document.UpdatedAt = time.Now()
 
-	items, err := s.repo.GetItemsByDocumentID(oldID)
+	items, err := s.repo.GetItemsByDocumentID(oldId)
 	if err != nil {
 		return nil, err
 	}

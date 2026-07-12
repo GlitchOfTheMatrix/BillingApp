@@ -66,18 +66,18 @@ func (h *DocumentHandler) GetAllDocuments(d *fiber.Ctx) error {
 	return d.JSON(documents)
 }
 
-func (h *DocumentHandler) UpdateDocument(d *fiber.Ctx) error {
-	id, err := uuid.Parse(d.Params("id"))
+func (h *DocumentHandler) UpdateDocument(c *fiber.Ctx) error {
+	id, err := uuid.Parse(c.Params("id"))
 	if err != nil {
-		return d.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": invalidDocumentIDMsg,
 		})
 	}
 
 	var document models.Document
 
-	if err := d.BodyParser(&document); err != nil {
-		return d.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	if err := c.BodyParser(&document); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
@@ -85,12 +85,12 @@ func (h *DocumentHandler) UpdateDocument(d *fiber.Ctx) error {
 	document.ID = id
 
 	if err := h.service.UpdateDocument(&document); err != nil {
-		return d.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	return d.JSON(document)
+	return c.JSON(document)
 }
 
 func (h *DocumentHandler) DeleteDocument(c *fiber.Ctx) error {

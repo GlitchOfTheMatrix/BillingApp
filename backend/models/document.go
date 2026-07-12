@@ -26,43 +26,50 @@ const (
 )
 
 type Document struct {
-	ID uuid.UUID `db:"id"`
+	ID uuid.UUID `db:"id" json:"id"`
 
-	DocumentType DocumentType `db:"document_type"`
+	DocumentType DocumentType `db:"document_type" json:"document_type"`
 
-	DocumentNumber string `db:"document_number"`
+	DocumentNumber string `db:"document_number" json:"document_number"`
 
-	DocumentDate time.Time `db:"document_date"`
+	DocumentDate time.Time `db:"document_date" json:"document_date"`
 
-	ClientID uuid.UUID `db:"client_id"`
+	ClientID uuid.UUID `db:"client_id" json:"client_id"`
 
-	SourceDocumentID *uuid.UUID `db:"source_document_id"`
+	SourceDocumentID *uuid.UUID `db:"source_document_id" json:"source_document_id"`
 
-	OrderNumber string     `db:"order_number"`
-	OrderDate   *time.Time `db:"order_date"`
+	OrderNumber string `db:"order_number" json:"order_number"`
 
-	Status DocumentStatus `db:"status"`
+	OrderDate *time.Time `db:"order_date" json:"order_date"`
 
-	Subtotal decimal.Decimal `db:"subtotal"`
-	Shipping decimal.Decimal `db:"shipping"`
-	Discount decimal.Decimal `db:"discount"`
+	Status DocumentStatus `db:"status" json:"status"`
 
-	CGST decimal.Decimal `db:"cgst"`
-	SGST decimal.Decimal `db:"sgst"`
-	IGST decimal.Decimal `db:"igst"`
+	Subtotal decimal.Decimal `db:"subtotal" json:"subtotal"`
 
-	GrandTotal decimal.Decimal `db:"grand_total"`
+	Shipping decimal.Decimal `db:"shipping" json:"shipping"`
 
-	AmountInWords string `db:"amount_in_words"`
+	Discount decimal.Decimal `db:"discount" json:"discount"`
 
-	Remarks string `db:"remarks"`
+	CGST decimal.Decimal `db:"cgst" json:"cgst"`
 
-	CreatedBy uuid.UUID `db:"created_by"`
+	SGST decimal.Decimal `db:"sgst" json:"sgst"`
 
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	IGST decimal.Decimal `db:"igst" json:"igst"`
+
+	GrandTotal decimal.Decimal `db:"grand_total" json:"grand_total"`
+
+	AmountInWords string `db:"amount_in_words" json:"amount_in_words"`
+
+	Remarks string `db:"remarks" json:"remarks"`
+
+	CreatedBy uuid.UUID `db:"created_by" json:"created_by"`
+
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 
 	// Relations
-	Client *Client        `db:"-"`
-	Items  []DocumentItem `db:"-"`
+	Client *Client `db:"-" json:"client,omitempty"`
+
+	Items []DocumentItem `db:"-" json:"items"`
 }

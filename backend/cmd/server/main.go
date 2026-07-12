@@ -44,9 +44,19 @@ func main() {
 	userService := services.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
+	// Payment
+	paymentRepo := repositories.NewPaymentRepository(db)
+	paymentService := services.NewPaymentService(paymentRepo)
+	paymentHandler := handlers.NewPaymentHandler(paymentService)
+
+	// Company-Details
+	companyRepo := repositories.NewCompanyDetailsRepository(db)
+	companyService := services.NewCompanyDetailsService(companyRepo)
+	companyHandler := handlers.NewCompanyDetailsHandler(companyService)
+
 	app := fiber.New()
 
-	routes.Setup(app, clientHandler, documentHandler, userHandler)
+	routes.Setup(app, clientHandler, documentHandler, userHandler, paymentHandler, companyHandler)
 
 	log.Fatal(app.Listen(":" + cfg.Port))
 }

@@ -10,6 +10,8 @@ func Setup(
 	clientHandler *handlers.ClientHandler,
 	documentHandler *handlers.DocumentHandler,
 	userHandler *handlers.UserHandler,
+	paymentHandler *handlers.PaymentHandler,
+	companyHandler *handlers.CompanyDetailsHandler,
 ) {
 	api := app.Group("/api")
 
@@ -37,4 +39,20 @@ func Setup(
 	users.Get("/:id", userHandler.GetUserByID)
 	users.Put("/:id", userHandler.UpdateUser)
 	users.Delete("/:id", userHandler.DeleteUser)
+
+	payments := api.Group("/payments")
+
+	payments.Post("/", paymentHandler.CreatePayment)
+	payments.Get("/", paymentHandler.GetAllPayments)
+	payments.Get("/:id", paymentHandler.GetPaymentByID)
+	payments.Put("/:id", paymentHandler.UpdatePayment)
+	payments.Delete("/:id", paymentHandler.DeletePayment)
+
+	companyDetails := api.Group("/company-details")
+
+	companyDetails.Post("/", companyHandler.CreateCompanyDetails)
+	companyDetails.Get("/", companyHandler.GetAllCompanyDetails)
+	companyDetails.Get("/:id", companyHandler.GetCompanyDetailsByID)
+	companyDetails.Put("/:id", companyHandler.UpdateCompanyDetails)
+	companyDetails.Delete("/:id", companyHandler.DeleteCompanyDetails)
 }

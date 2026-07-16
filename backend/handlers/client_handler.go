@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/services"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -26,6 +29,10 @@ func (h *ClientHandler) CreateClient(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
+	}
+
+	if errs := utils.ValidateStruct(client); errs != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
 	}
 
 	if err := h.service.CreateClient(&client); err != nil {
@@ -56,14 +63,15 @@ func (h *ClientHandler) GetClientByID(c *fiber.Ctx) error {
 }
 
 func (h *ClientHandler) GetAllClients(c *fiber.Ctx) error {
-	clients, err := h.service.GetAllClients()
+	params := utils.GetPaginationParams(c)
+	response, err := h.service.GetAllClients(params)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	return c.JSON(clients)
+	return c.JSON(response)
 }
 
 func (h *ClientHandler) UpdateClient(c *fiber.Ctx) error {
@@ -82,7 +90,12 @@ func (h *ClientHandler) UpdateClient(c *fiber.Ctx) error {
 		})
 	}
 
+	if errs := utils.ValidateStruct(client); errs != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
+	}
+
 	client.ID = id
+	client.UpdatedAt = time.Now()
 
 	if err := h.service.UpdateClient(&client); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

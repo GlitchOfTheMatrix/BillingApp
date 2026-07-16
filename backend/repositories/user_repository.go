@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -51,6 +52,8 @@ func (r *UserRepository) GetByID(id uuid.UUID) (*models.User, error) {
 			email,
 			password_hash,
 			role,
+			reset_token,
+			reset_token_expires,
 			created_at,
 			updated_at
 		FROM users
@@ -69,6 +72,8 @@ func (r *UserRepository) GetByID(id uuid.UUID) (*models.User, error) {
 		&user.Email,
 		&user.PasswordHash,
 		&user.Role,
+		&user.ResetToken,
+		&user.ResetTokenExpires,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -88,6 +93,8 @@ func (r *UserRepository) GetByEmail(email string) (*models.User, error) {
 			email,
 			password_hash,
 			role,
+			reset_token,
+			reset_token_expires,
 			created_at,
 			updated_at
 		FROM users
@@ -106,6 +113,8 @@ func (r *UserRepository) GetByEmail(email string) (*models.User, error) {
 		&user.Email,
 		&user.PasswordHash,
 		&user.Role,
+		&user.ResetToken,
+		&user.ResetTokenExpires,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
@@ -117,7 +126,19 @@ func (r *UserRepository) GetByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) GetAll() ([]models.User, error) {
+func (r *UserRepository) GetAll(params utils.PaginationParams) ([]models.User, int, error) {
+	searchQuery := "%" + params.Search + "%"
+	
+	countQuery := `
+		SELECT COUNT(id) FROM users
+		WHERE name ILIKE $1 OR email ILIKE $1 OR role ILIKE $1
+	`
+	var total int
+	err := r.db.QueryRow(context.Background(), countQuery, searchQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	query := `
 		SELECT
 			id,
@@ -125,15 +146,19 @@ func (r *UserRepository) GetAll() ([]models.User, error) {
 			email,
 			password_hash,
 			role,
+			reset_token,
+			reset_token_expires,
 			created_at,
 			updated_at
 		FROM users
+		WHERE name ILIKE $1 OR email ILIKE $1 OR role ILIKE $1
 		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(context.Background(), query, searchQuery, params.Limit, params.Offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -148,18 +173,20 @@ func (r *UserRepository) GetAll() ([]models.User, error) {
 			&user.Email,
 			&user.PasswordHash,
 			&user.Role,
+			&user.ResetToken,
+			&user.ResetTokenExpires,
 			&user.CreatedAt,
 			&user.UpdatedAt,
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		users = append(users, user)
 	}
 
-	return users, rows.Err()
+	return users, total, rows.Err()
 }
 
 func (r *UserRepository) Update(user *models.User) error {
@@ -168,7 +195,10 @@ func (r *UserRepository) Update(user *models.User) error {
 		SET
 			name = $2,
 			email = $3,
-			role = $4,
+			password_hash = $4,
+			role = $5,
+			reset_token = $6,
+			reset_token_expires = $7,
 			updated_at = NOW()
 		WHERE id = $1
 	`
@@ -179,10 +209,54 @@ func (r *UserRepository) Update(user *models.User) error {
 		user.ID,
 		user.Name,
 		user.Email,
+		user.PasswordHash,
 		user.Role,
+		user.ResetToken,
+		user.ResetTokenExpires,
 	)
 
 	return err
+}
+
+func (r *UserRepository) GetByResetToken(token string) (*models.User, error) {
+	query := `
+		SELECT
+			id,
+			name,
+			email,
+			password_hash,
+			role,
+			reset_token,
+			reset_token_expires,
+			created_at,
+			updated_at
+		FROM users
+		WHERE reset_token = $1
+	`
+
+	var user models.User
+
+	err := r.db.QueryRow(
+		context.Background(),
+		query,
+		token,
+	).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.PasswordHash,
+		&user.Role,
+		&user.ResetToken,
+		&user.ResetTokenExpires,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (r *UserRepository) Delete(id uuid.UUID) error {

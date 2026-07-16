@@ -10,6 +10,7 @@ import (
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/routes"
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/services"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -37,8 +38,6 @@ func main() {
 	// Document
 	documentRepo := repositories.NewDocumentRepository(db)
 	documentService := services.NewDocumentService(documentRepo)
-	documentHandler := handlers.NewDocumentHandler(documentService)
-
 	// User
 	userRepo := repositories.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
@@ -54,7 +53,10 @@ func main() {
 	companyService := services.NewCompanyDetailsService(companyRepo)
 	companyHandler := handlers.NewCompanyDetailsHandler(companyService)
 
+	documentHandler := handlers.NewDocumentHandler(documentService, clientService, companyService)
+
 	app := fiber.New()
+	app.Use(cors.New())
 
 	routes.Setup(app, clientHandler, documentHandler, userHandler, paymentHandler, companyHandler)
 

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -136,7 +137,24 @@ func (r *DocumentRepository) Create(document *models.Document) error {
 	return tx.Commit(ctx)
 }
 
-func (r *DocumentRepository) GetAll() ([]models.Document, error) {
+func (r *DocumentRepository) GetAllDocuments(params utils.PaginationParams) ([]models.Document, int, error) {
+	searchQuery := "%" + params.Search + "%"
+
+	countQuery := `
+    SELECT COUNT(id)
+    FROM documents
+    WHERE
+        document_number ILIKE $1
+        OR order_number ILIKE $1
+        OR status::text ILIKE $1
+        OR document_type::text ILIKE $1
+	`
+	var total int
+	err := r.db.QueryRow(context.Background(), countQuery, searchQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	query := `
 		SELECT
 			id,
@@ -161,12 +179,18 @@ func (r *DocumentRepository) GetAll() ([]models.Document, error) {
 			created_at,
 			updated_at
 		FROM documents
+		WHERE
+			document_number ILIKE $1
+			OR order_number ILIKE $1
+			OR status::text ILIKE $1
+			OR document_type::text ILIKE $1
 		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(context.Background(), query, searchQuery, params.Limit, params.Offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -199,12 +223,12 @@ func (r *DocumentRepository) GetAll() ([]models.Document, error) {
 			&document.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		items, err := r.GetItemsByDocumentID(document.ID)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		document.Items = items
@@ -213,10 +237,10 @@ func (r *DocumentRepository) GetAll() ([]models.Document, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return documents, nil
+	return documents, total, nil
 }
 
 func (r *DocumentRepository) Update(document *models.Document) error {
@@ -351,7 +375,7 @@ func (r *DocumentRepository) GetByID(id uuid.UUID) (*models.Document, error) {
 			client_id,
 			source_document_id,
 			order_number,
-					order_date,
+			order_date,
 			status,
 			subtotal,
 			shipping,

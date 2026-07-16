@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -115,7 +116,19 @@ func (r *CompanyDetailsRepository) GetByID(id uuid.UUID) (*models.CompanyDetails
 	return &company, nil
 }
 
-func (r *CompanyDetailsRepository) GetAll() ([]models.CompanyDetails, error) {
+func (r *CompanyDetailsRepository) GetAll(params utils.PaginationParams) ([]models.CompanyDetails, int, error) {
+	searchQuery := "%" + params.Search + "%"
+	
+	countQuery := `
+		SELECT COUNT(id) FROM company_details
+		WHERE company_name ILIKE $1 OR gst_number ILIKE $1 OR email ILIKE $1
+	`
+	var total int
+	err := r.db.QueryRow(context.Background(), countQuery, searchQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	query := `
 		SELECT
 			id,
@@ -134,12 +147,14 @@ func (r *CompanyDetailsRepository) GetAll() ([]models.CompanyDetails, error) {
 			created_at,
 			updated_at
 		FROM company_details
+		WHERE company_name ILIKE $1 OR gst_number ILIKE $1 OR email ILIKE $1
 		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(context.Background(), query, searchQuery, params.Limit, params.Offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -167,13 +182,13 @@ func (r *CompanyDetailsRepository) GetAll() ([]models.CompanyDetails, error) {
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		companies = append(companies, company)
 	}
 
-	return companies, rows.Err()
+	return companies, total, rows.Err()
 }
 
 func (r *CompanyDetailsRepository) Update(company *models.CompanyDetails) error {

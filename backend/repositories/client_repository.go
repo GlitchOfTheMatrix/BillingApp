@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -102,7 +103,19 @@ func (r *ClientRepository) GetClientByID(id uuid.UUID) (*models.Client, error) {
 	return &client, nil
 }
 
-func (r *ClientRepository) GetAllClients() ([]models.Client, error) {
+func (r *ClientRepository) GetAllClients(params utils.PaginationParams) ([]models.Client, int, error) {
+	searchQuery := "%" + params.Search + "%"
+	
+	countQuery := `
+		SELECT COUNT(id) FROM clients
+		WHERE name ILIKE $1 OR email ILIKE $1 OR organisation ILIKE $1
+	`
+	var total int
+	err := r.db.QueryRow(context.Background(), countQuery, searchQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	query := `
 		SELECT
 			id,
@@ -118,12 +131,14 @@ func (r *ClientRepository) GetAllClients() ([]models.Client, error) {
 			created_at,
 			updated_at
 		FROM clients
+		WHERE name ILIKE $1 OR email ILIKE $1 OR organisation ILIKE $1
 		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(context.Background(), query, searchQuery, params.Limit, params.Offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -131,7 +146,6 @@ func (r *ClientRepository) GetAllClients() ([]models.Client, error) {
 
 	for rows.Next() {
 		var client models.Client
-
 		err := rows.Scan(
 			&client.ID,
 			&client.Name,
@@ -147,13 +161,13 @@ func (r *ClientRepository) GetAllClients() ([]models.Client, error) {
 			&client.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		clients = append(clients, client)
 	}
 
-	return clients, rows.Err()
+	return clients, total, rows.Err()
 }
 
 func (r *ClientRepository) UpdateClient(client *models.Client) error {

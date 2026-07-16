@@ -1,11 +1,9 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-
-import React from "react";
-import ReactDOM from "react-dom/client";
+import React, { StrictMode } from "react";
+import ReactDOM, { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./app/App.tsx";
+import "./api/interceptors";
 
 import "./styles/globals.css";
 import "./styles/reset.css";

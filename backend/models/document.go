@@ -28,13 +28,13 @@ const (
 type Document struct {
 	ID uuid.UUID `db:"id" json:"id"`
 
-	DocumentType DocumentType `db:"document_type" json:"document_type"`
+	DocumentType DocumentType `db:"document_type" json:"document_type" validate:"required"`
 
-	DocumentNumber string `db:"document_number" json:"document_number"`
+	DocumentNumber string `db:"document_number" json:"document_number" validate:"required"`
 
-	DocumentDate time.Time `db:"document_date" json:"document_date"`
+	DocumentDate time.Time `db:"document_date" json:"document_date" validate:"required"`
 
-	ClientID uuid.UUID `db:"client_id" json:"client_id"`
+	ClientID uuid.UUID `db:"client_id" json:"client_id" validate:"required"`
 
 	SourceDocumentID *uuid.UUID `db:"source_document_id" json:"source_document_id"`
 
@@ -42,7 +42,7 @@ type Document struct {
 
 	OrderDate *time.Time `db:"order_date" json:"order_date"`
 
-	Status DocumentStatus `db:"status" json:"status"`
+	Status DocumentStatus `db:"status" json:"status" validate:"required"`
 
 	Subtotal decimal.Decimal `db:"subtotal" json:"subtotal"`
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/repositories"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/google/uuid"
 )
 
@@ -32,8 +33,12 @@ func (s *PaymentService) GetByID(id uuid.UUID) (*models.Payment, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *PaymentService) GetAll() ([]models.Payment, error) {
-	return s.repo.GetAll()
+func (s *PaymentService) GetAll(params utils.PaginationParams) (utils.PaginatedResponse, error) {
+	payments, total, err := s.repo.GetAll(params)
+	if err != nil {
+		return utils.PaginatedResponse{}, err
+	}
+	return utils.NewPaginatedResponse(payments, total, params.Page, params.Limit), nil
 }
 
 func (s *PaymentService) Update(payment *models.Payment) error {

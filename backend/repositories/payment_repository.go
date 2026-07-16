@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -96,7 +97,19 @@ func (r *PaymentRepository) GetByID(id uuid.UUID) (*models.Payment, error) {
 	return &payment, nil
 }
 
-func (r *PaymentRepository) GetAll() ([]models.Payment, error) {
+func (r *PaymentRepository) GetAll(params utils.PaginationParams) ([]models.Payment, int, error) {
+	searchQuery := "%" + params.Search + "%"
+	
+	countQuery := `
+		SELECT COUNT(id) FROM payments
+		WHERE status ILIKE $1 OR mode ILIKE $1 OR utr_number ILIKE $1
+	`
+	var total int
+	err := r.db.QueryRow(context.Background(), countQuery, searchQuery).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	query := `
 		SELECT
 			id,
@@ -111,12 +124,14 @@ func (r *PaymentRepository) GetAll() ([]models.Payment, error) {
 			created_at,
 			updated_at
 		FROM payments
+		WHERE status ILIKE $1 OR mode ILIKE $1 OR utr_number ILIKE $1
 		ORDER BY created_at DESC
+		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(context.Background(), query)
+	rows, err := r.db.Query(context.Background(), query, searchQuery, params.Limit, params.Offset)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -140,13 +155,13 @@ func (r *PaymentRepository) GetAll() ([]models.Payment, error) {
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		payments = append(payments, payment)
 	}
 
-	return payments, rows.Err()
+	return payments, total, rows.Err()
 }
 
 func (r *PaymentRepository) Update(payment *models.Payment) error {

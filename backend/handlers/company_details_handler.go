@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/services"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -30,6 +31,10 @@ func (h *CompanyDetailsHandler) CreateCompanyDetails(c *fiber.Ctx) error {
 				"error": err.Error(),
 			},
 		)
+	}
+
+	if errs := utils.ValidateStruct(company); errs != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
 	}
 
 	if err := h.service.Create(&company); err != nil {
@@ -68,7 +73,8 @@ func (h *CompanyDetailsHandler) GetCompanyDetailsByID(c *fiber.Ctx) error {
 }
 
 func (h *CompanyDetailsHandler) GetAllCompanyDetails(c *fiber.Ctx) error {
-	companies, err := h.service.GetAll()
+	params := utils.GetPaginationParams(c)
+	response, err := h.service.GetAll(params)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
@@ -78,7 +84,7 @@ func (h *CompanyDetailsHandler) GetAllCompanyDetails(c *fiber.Ctx) error {
 		)
 	}
 
-	return c.JSON(companies)
+	return c.JSON(response)
 }
 
 func (h *CompanyDetailsHandler) UpdateCompanyDetails(c *fiber.Ctx) error {
@@ -100,6 +106,10 @@ func (h *CompanyDetailsHandler) UpdateCompanyDetails(c *fiber.Ctx) error {
 				"error": err.Error(),
 			},
 		)
+	}
+
+	if errs := utils.ValidateStruct(company); errs != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
 	}
 
 	company.ID = id

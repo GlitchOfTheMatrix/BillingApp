@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/models"
 	"github.com/GlitchOfTheMatrix/BillingApp/backend/services"
+	"github.com/GlitchOfTheMatrix/BillingApp/backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -26,6 +27,10 @@ func (h *PaymentHandler) CreatePayment(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
+	}
+
+	if errs := utils.ValidateStruct(payment); errs != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
 	}
 
 	if err := h.service.Create(&payment); err != nil {
@@ -58,7 +63,8 @@ func (h *PaymentHandler) GetPaymentByID(c *fiber.Ctx) error {
 }
 
 func (h *PaymentHandler) GetAllPayments(c *fiber.Ctx) error {
-	payments, err := h.service.GetAll()
+	params := utils.GetPaginationParams(c)
+	response, err := h.service.GetAll(params)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -66,7 +72,7 @@ func (h *PaymentHandler) GetAllPayments(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(payments)
+	return c.JSON(response)
 }
 
 func (h *PaymentHandler) UpdatePayment(c *fiber.Ctx) error {
@@ -84,6 +90,10 @@ func (h *PaymentHandler) UpdatePayment(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
+	}
+
+	if errs := utils.ValidateStruct(payment); errs != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
 	}
 
 	payment.ID = id

@@ -25,7 +25,7 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	
+
 	if errs := utils.ValidateStruct(req); errs != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"errors": errs})
 	}
@@ -79,7 +79,7 @@ func (h *UserHandler) ChangePassword(c *fiber.Ctx) error {
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
 	}
-	
+
 	var req models.ChangePasswordRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
@@ -115,7 +115,7 @@ func (h *UserHandler) ForgotPassword(c *fiber.Ctx) error {
 	// Since there is no email service, we return it in response for now
 	return c.JSON(fiber.Map{
 		"message": "Password reset token generated",
-		"token": token,
+		"token":   token,
 	})
 }
 
@@ -203,4 +203,17 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *UserHandler) Me(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(uuid.UUID)
+
+	user, err := h.service.GetByID(userID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "user not found",
+		})
+	}
+
+	return c.JSON(user)
 }

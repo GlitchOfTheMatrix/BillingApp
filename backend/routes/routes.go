@@ -23,6 +23,7 @@ func Setup(
 	auth.Post("/forgot-password", userHandler.ForgotPassword)
 	auth.Post("/reset-password", userHandler.ResetPassword)
 	auth.Post("/change-password", middleware.RequireAuth, userHandler.ChangePassword)
+	auth.Get("/me", middleware.RequireAuth, userHandler.Me)
 
 	clients := api.Group("/clients", middleware.RequireAuth)
 	clients.Post("/", clientHandler.CreateClient)

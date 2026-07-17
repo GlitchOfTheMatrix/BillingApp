@@ -33,9 +33,10 @@ export function AuthContextProvider({ children }: Props) {
 
       const currentUser = await meApi();
 
-      setUser(currentUser.user);
+      setUser(currentUser);
     } catch {
       tokenStorage.clearTokens();
+
       setUser(null);
     } finally {
       setIsLoading(false);

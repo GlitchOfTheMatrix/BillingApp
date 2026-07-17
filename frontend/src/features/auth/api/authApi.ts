@@ -1,23 +1,15 @@
 import { api } from "../../../api/axios";
 
-import type {
-    LoginRequest,
-    LoginResponse,
-} from "../types";
+import type { LoginRequest, LoginResponse, User } from "../types";
 
-export async function loginApi(
-    payload: LoginRequest
-): Promise<LoginResponse> {
-    const response = await api.post<LoginResponse>(
-        "/auth/login",
-        payload
-    );
+export async function loginApi(payload: LoginRequest): Promise<LoginResponse> {
+  const response = await api.post<LoginResponse>("/auth/login", payload);
 
-    return response.data;
+  return response.data;
 }
 
-export async function meApi() {
-    const response = await api.get("/auth/me");
+export async function meApi(): Promise<User> {
+  const response = await api.get<User>("/auth/me");
 
-    return response.data;
+  return response.data;
 }

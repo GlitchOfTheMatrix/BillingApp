@@ -1,8 +1,8 @@
-import React, { StrictMode } from "react";
-import ReactDOM, { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 
 import App from "./app/App.tsx";
+import AuthProvider from "./app/providers/AuthProvider.tsx";
 import "./api/interceptors";
 
 import "./styles/globals.css";
@@ -11,6 +11,8 @@ import "./styles/variables.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>,
 );

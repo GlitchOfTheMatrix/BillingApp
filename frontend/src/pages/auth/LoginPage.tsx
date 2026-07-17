@@ -1,3 +1,10 @@
+import LoginForm from "../../features/auth/components/LoginForm/LoginForm";
+import styles from "./LoginPage.module.css";
+
 export default function LoginPage() {
-  return <h1>Login</h1>;
+  return (
+    <main className={styles.page}>
+      <LoginForm />
+    </main>
+  );
 }

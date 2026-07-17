@@ -1,4 +1,5 @@
 import { createContext, useEffect, useMemo, useState } from "react";
+
 import { tokenStorage } from "../services/tokenStorage";
 import type {
   AuthContextType,
@@ -42,11 +43,17 @@ export function AuthContextProvider({ children }: Props) {
   }
 
   async function login(payload: LoginRequest) {
-    const response = await loginApi(payload);
+    try {
+      setIsLoading(true);
 
-    tokenStorage.setTokens(response.access_token, response.refresh_token);
+      const response = await loginApi(payload);
 
-    setUser(response.user);
+      tokenStorage.setTokens(response.access_token, response.refresh_token);
+
+      setUser(response.user);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function logout() {

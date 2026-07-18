@@ -8,3 +8,26 @@ export const ROUTES = {
   EDIT_DOCUMENT: "/documents/:id/edit",
   PAYMENTS: "/payments",
 };
+
+export const NAV_ITEMS = [
+  {
+    label: "Dashboard",
+    path: ROUTES.DASHBOARD,
+  },
+  {
+    label: "Company",
+    path: ROUTES.COMPANY,
+  },
+  {
+    label: "Clients",
+    path: ROUTES.CLIENTS,
+  },
+  {
+    label: "Documents",
+    path: ROUTES.DOCUMENTS,
+  },
+  {
+    label: "Payments",
+    path: ROUTES.PAYMENTS,
+  },
+];

@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+
 import { api } from "./axios";
 import { tokenStorage } from "../services/tokenStorage";
 
@@ -13,8 +14,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
+
   (error) => {
     throw error;
   },
@@ -28,7 +31,15 @@ api.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthRoute =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/refresh");
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthRoute
+    ) {
       originalRequest._retry = true;
 
       try {
@@ -42,11 +53,16 @@ api.interceptors.response.use(
           refresh_token: refreshToken,
         });
 
-        const { access_token, refresh_token } = response.data;
+        const { access_token, refresh_token } = response.data as {
+          access_token: string;
+          refresh_token: string;
+        };
 
         tokenStorage.setTokens(access_token, refresh_token);
 
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
+        const headers = axios.AxiosHeaders.from(originalRequest.headers || {});
+        headers.set("Authorization", `Bearer ${access_token}`);
+        originalRequest.headers = headers;
 
         return api(originalRequest);
       } catch {

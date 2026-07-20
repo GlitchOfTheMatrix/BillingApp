@@ -1,0 +1,37 @@
+import type { DocumentFormValues } from "./schemas/documentSchema";
+
+export const EMPTY_DOCUMENT: DocumentFormValues = {
+  document_type: "tax_invoice",
+  document_number: "",
+  document_date: "",
+  client_id: "",
+  order_number: "",
+  order_date: "",
+  status: "draft",
+  subtotal: "0",
+  shipping: "0",
+  discount: "0",
+  cgst: "0",
+  sgst: "0",
+  igst: "0",
+  grand_total: "0",
+  amount_in_words: "",
+  remarks: "",
+  items: [
+    {
+      serial_no: 1,
+      software_name: "",
+      description: "",
+      hsn_code: "",
+      license_type: "",
+      subscription_duration: "",
+      quantity: 1,
+      unit: "",
+      rate: "0",
+      discount: "0",
+      tax_rate: "18",
+      total: "0",
+      extra: {},
+    },
+  ],
+};

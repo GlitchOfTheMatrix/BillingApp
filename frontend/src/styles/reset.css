@@ -1,0 +1,113 @@
+/* ============================================
+   Modern CSS Reset
+   ============================================ */
+
+/* Box sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove all default margins and padding */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent font-size inflation on mobile */
+html {
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  scroll-behavior: smooth;
+}
+
+/* Core body defaults */
+body {
+  min-height: 100vh;
+  line-height: var(--line-height-normal, 1.5);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings: inherit font size to prevent surprises */
+h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Text wrapping */
+p, li, figcaption {
+  overflow-wrap: break-word;
+}
+
+/* Media defaults */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Inherit fonts for form elements */
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Remove default button styling */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Textarea: only vertical resize */
+textarea {
+  resize: vertical;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Links: inherit color */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Lists: remove markers when role is list */
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+}
+
+/* Remove default fieldset/legend styles */
+fieldset {
+  border: none;
+}
+
+/* Remove default hr styling */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  margin: var(--space-6, 1.5rem) 0;
+}
+
+/* Hidden attribute support */
+[hidden] {
+  display: none !important;
+}
+
+/* Remove spinner from number inputs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}

@@ -1,0 +1,17 @@
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  max-width: 900px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}

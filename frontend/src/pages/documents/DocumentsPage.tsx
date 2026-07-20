@@ -1,103 +1,175 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import { ROUTES } from "../../app/router/routes";
 import {
   deleteDocument,
   getDocuments,
+  downloadDocumentPDF,
+  duplicateDocument,
 } from "../../features/documents/api/documentApi";
-import type { Document } from "../../features/documents/types";
+import type { Document, DocumentStatus } from "../../features/documents/types";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../components/common/Pagination/Pagination";
+import SearchBar from "../../components/common/SearchBar/SearchBar";
+import PageHeader from "../../components/common/PageHeader/PageHeader";
+import Card, { CardHeader, CardActions } from "../../components/common/Card/Card";
+import EmptyState from "../../components/common/EmptyState/EmptyState";
+import Button from "../../components/common/Button/Button";
+import ConfirmDialog from "../../components/common/ConfirmDialog/ConfirmDialog";
+import { useLoader } from "../../contexts/LoaderContext";
+import styles from "./DocumentsPage.module.css";
+
+const STATUS_CLASSES: Record<DocumentStatus, string> = {
+  draft: styles.statusDraft,
+  sent: styles.statusSent,
+  accepted: styles.statusAccepted,
+  paid: styles.statusPaid,
+  cancelled: styles.statusCancelled,
+};
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [deleteTarget, setDeleteTarget] = useState<Document | null>(null);
+  const { showLoader, hideLoader } = useLoader();
 
-  const [loading, setLoading] = useState(true);
-
-  const [error, setError] = useState("");
+  const {
+    page,
+    searchInput,
+    debouncedSearch,
+    handleSearchChange,
+    handlePageChange,
+    getPaginationParams,
+  } = usePagination();
 
   useEffect(() => {
     loadDocuments();
-  }, []);
+  }, [page, debouncedSearch]);
 
   async function loadDocuments() {
     try {
-      setLoading(true);
-
-      setError("");
-
-      const response = await getDocuments();
-
+      showLoader();
+      const response = await getDocuments(getPaginationParams());
       setDocuments(response.data ?? []);
+      setTotalPages(response.total_pages || 1);
     } catch {
-      setError("Failed to load documents.");
+      toast.error("Failed to load documents.");
     } finally {
-      setLoading(false);
+      hideLoader();
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDeleteConfirm() {
+    if (!deleteTarget) return;
     try {
-      await deleteDocument(id);
-
-      setDocuments((prev) => prev.filter((document) => document.id !== id));
+      showLoader();
+      await deleteDocument(deleteTarget.id);
+      toast.success("Document deleted successfully");
+      setDeleteTarget(null);
+      await loadDocuments();
     } catch {
-      setError("Failed to delete document.");
+      toast.error("Failed to delete document.");
+      hideLoader();
     }
   }
 
-  if (loading) {
-    return <h2>Loading...</h2>;
+  async function handleDownloadPDF(id: string, documentNumber: string) {
+    try {
+      showLoader();
+      await downloadDocumentPDF(id, documentNumber);
+      toast.success("PDF downloaded successfully");
+    } catch {
+      toast.error("Failed to download PDF.");
+    } finally {
+      hideLoader();
+    }
+  }
+
+  async function handleDuplicate(id: string) {
+    try {
+      showLoader();
+      await duplicateDocument(id);
+      toast.success("Document duplicated successfully");
+      await loadDocuments();
+    } catch {
+      toast.error("Failed to duplicate document.");
+      hideLoader();
+    }
   }
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "2rem",
-        }}
-      >
-        <h1>Documents</h1>
+      <PageHeader title="Documents">
+        <SearchBar
+          value={searchInput}
+          onChange={handleSearchChange}
+          placeholder="Search documents..."
+        />
+        <Link to={ROUTES.CREATE_DOCUMENT}>
+          <Button>Create Document</Button>
+        </Link>
+      </PageHeader>
 
-        <Link to={ROUTES.CREATE_DOCUMENT}>Create Document</Link>
-      </div>
-
-      {error && <p>{error}</p>}
-
-      {documents.length === 0 && <p>No documents found.</p>}
-
-      {documents.map((document) => (
-        <div
-          key={document.id}
-          style={{
-            border: "1px solid #ddd",
-            padding: "1rem",
-            marginBottom: "1rem",
-            borderRadius: "8px",
-          }}
+      {documents.length === 0 ? (
+        <EmptyState
+          icon="📄"
+          title="No documents found"
+          message="Create your first invoice, quotation, or proforma."
         >
-          <h3>{document.document_number}</h3>
-
-          <p>Type: {document.document_type}</p>
-
-          <p>Status: {document.status}</p>
-
-          <p>Total: ₹{document.grand_total}</p>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "1rem",
-              marginTop: "1rem",
-            }}
-          >
-            <Link to={`/documents/${document.id}/edit`}>Edit</Link>
-
-            <button onClick={() => handleDelete(document.id)}>Delete</button>
-          </div>
+          <Link to={ROUTES.CREATE_DOCUMENT}>
+            <Button>Create Document</Button>
+          </Link>
+        </EmptyState>
+      ) : (
+        <div className={styles.listGrid}>
+          {documents.map((doc) => (
+            <Card key={doc.id}>
+              <CardHeader
+                title={doc.document_number}
+                subtitle={doc.document_type.replace("_", " ")}
+              />
+              <div className={styles.docMeta}>
+                <span className={`${styles.statusBadge} ${STATUS_CLASSES[doc.status]}`}>
+                  {doc.status}
+                </span>
+                <span className={styles.total}>₹{doc.grand_total}</span>
+              </div>
+              <CardActions>
+                <Link to={`/documents/${doc.id}/edit`}>
+                  <Button variant="secondary" size="sm">Edit</Button>
+                </Link>
+                <Button variant="secondary" size="sm" onClick={() => handleDuplicate(doc.id)}>
+                  Duplicate
+                </Button>
+                <Button variant="secondary" size="sm" onClick={() => handleDownloadPDF(doc.id, doc.document_number)}>
+                  PDF
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => setDeleteTarget(doc)}>
+                  Delete
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
         </div>
-      ))}
+      )}
+
+      {documents.length > 0 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Delete Document"
+        message={`Are you sure you want to delete document "${deleteTarget?.document_number}"? This action cannot be undone.`}
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </>
   );
 }

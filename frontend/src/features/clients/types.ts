@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "../../types/api";
+
 export interface Client {
   id: string;
   name: string;
@@ -13,12 +15,6 @@ export interface Client {
   updated_at: string;
 }
 
-export interface ClientListResponse {
-  data: Client[];
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-}
+export type ClientListResponse = PaginatedResponse<Client>;
 
 export type ClientPayload = Omit<Client, "id" | "created_at" | "updated_at">;

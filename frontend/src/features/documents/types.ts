@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "../../types/api";
+
 export type DocumentType = "quotation" | "proforma" | "tax_invoice";
 
 export type DocumentStatus =
@@ -50,13 +52,7 @@ export interface Document {
   items: DocumentItem[];
 }
 
-export interface DocumentListResponse {
-  data: Document[] | null;
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-}
+export type DocumentListResponse = PaginatedResponse<Document>;
 
 export type CreateDocumentPayload = Omit<
   Document,

@@ -1,15 +1,59 @@
 .navbar {
-  height: 72px;
-  padding: 0 2rem;
-  border-bottom: 1px solid #e5e5e5;
+  height: var(--navbar-height);
+  padding: 0 var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-elevated);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
+  flex-shrink: 0;
 }
 
-.button {
-  border: none;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
+.menuButton {
+  display: none;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast);
+}
+
+.menuButton:hover {
+  background-color: var(--color-gray-100);
+}
+
+.menuIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+}
+
+.userName {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.userRole {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: capitalize;
+}
+
+@media (max-width: 1024px) {
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .navbar {
+    padding: 0 var(--space-4);
+  }
 }

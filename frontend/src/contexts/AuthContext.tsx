@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 
 import { tokenStorage } from "../services/tokenStorage";
 import type {
@@ -43,7 +43,7 @@ export function AuthContextProvider({ children }: Props) {
     }
   }
 
-  async function login(payload: LoginRequest) {
+  const login = useCallback(async (payload: LoginRequest) => {
     try {
       setIsLoading(true);
 
@@ -55,13 +55,13 @@ export function AuthContextProvider({ children }: Props) {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
-  function logout() {
+  const logout = useCallback(() => {
     tokenStorage.clearTokens();
 
     setUser(null);
-  }
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -75,7 +75,7 @@ export function AuthContextProvider({ children }: Props) {
 
       logout,
     }),
-    [user, isLoading],
+    [user, isLoading, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

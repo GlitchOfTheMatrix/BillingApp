@@ -7,11 +7,12 @@ import {
   type CompanyFormValues,
 } from "../../schemas/companySchema";
 import type { CompanyDetails } from "../../types";
+import FormField from "../../../../components/common/FormField/FormField";
+import Button from "../../../../components/common/Button/Button";
 import styles from "./CompanyForm.module.css";
 
 interface Props {
   readonly initialData?: CompanyDetails;
-  readonly isSubmitting: boolean;
   readonly onSubmit: (values: CompanyFormValues) => Promise<void>;
 }
 
@@ -32,17 +33,15 @@ const EMPTY_VALUES: CompanyFormValues = {
 
 export default function CompanyForm({
   initialData,
-  isSubmitting,
   onSubmit,
 }: Props) {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
-
     defaultValues: EMPTY_VALUES,
   });
 
@@ -54,35 +53,63 @@ export default function CompanyForm({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-      <input placeholder="Company Name" {...register("company_name")} />
+      <FormField label="Company Name" htmlFor="co-name" error={errors.company_name?.message} required>
+        <input id="co-name" placeholder="Your business name" {...register("company_name")} />
+      </FormField>
 
-      <input placeholder="GST Number" {...register("gst_number")} />
+      <FormField label="GST Number" htmlFor="co-gst" error={errors.gst_number?.message}>
+        <input id="co-gst" placeholder="22AAAAA0000A1Z5" {...register("gst_number")} />
+      </FormField>
 
-      <input placeholder="PAN Number" {...register("pan_number")} />
+      <FormField label="PAN Number" htmlFor="co-pan" error={errors.pan_number?.message}>
+        <input id="co-pan" placeholder="AAAAA0000A" {...register("pan_number")} />
+      </FormField>
 
-      <input placeholder="MSME Number" {...register("msme_number")} />
+      <FormField label="MSME Number" htmlFor="co-msme" error={errors.msme_number?.message}>
+        <input id="co-msme" placeholder="UDYAM-XX-00-0000000" {...register("msme_number")} />
+      </FormField>
 
-      <textarea placeholder="Address" {...register("address")} />
+      <FormField label="Phone" htmlFor="co-phone" error={errors.phone?.message}>
+        <input id="co-phone" placeholder="+91 98765 43210" {...register("phone")} />
+      </FormField>
 
-      <input placeholder="Phone" {...register("phone")} />
+      <FormField label="Email" htmlFor="co-email" error={errors.email?.message}>
+        <input id="co-email" type="email" placeholder="company@example.com" {...register("email")} />
+      </FormField>
 
-      <input placeholder="Email" {...register("email")} />
+      <FormField label="Website" htmlFor="co-website" error={errors.website?.message}>
+        <input id="co-website" placeholder="https://example.com" {...register("website")} />
+      </FormField>
 
-      <input placeholder="Website" {...register("website")} />
+      <div className={styles.fullWidth}>
+        <FormField label="Address" htmlFor="co-address" error={errors.address?.message}>
+          <textarea id="co-address" placeholder="Full business address" {...register("address")} />
+        </FormField>
+      </div>
 
-      <input placeholder="Bank Name" {...register("bank_name")} />
+      <h3 className={styles.sectionDivider}>Bank Details</h3>
 
-      <input placeholder="Account Number" {...register("account_number")} />
+      <FormField label="Bank Name" htmlFor="co-bank" error={errors.bank_name?.message}>
+        <input id="co-bank" placeholder="Bank name" {...register("bank_name")} />
+      </FormField>
 
-      <input placeholder="IFSC Code" {...register("ifsc_code")} />
+      <FormField label="Account Number" htmlFor="co-account" error={errors.account_number?.message}>
+        <input id="co-account" placeholder="Account number" {...register("account_number")} />
+      </FormField>
 
-      <input placeholder="Branch" {...register("branch")} />
+      <FormField label="IFSC Code" htmlFor="co-ifsc" error={errors.ifsc_code?.message}>
+        <input id="co-ifsc" placeholder="SBIN0001234" {...register("ifsc_code")} />
+      </FormField>
 
-      {errors.company_name && <p>{errors.company_name.message}</p>}
+      <FormField label="Branch" htmlFor="co-branch" error={errors.branch?.message}>
+        <input id="co-branch" placeholder="Branch name" {...register("branch")} />
+      </FormField>
 
-      <button disabled={isSubmitting} type="submit">
-        Save
-      </button>
+      <div className={styles.actions}>
+        <Button type="submit" loading={isSubmitting}>
+          {initialData ? "Update Details" : "Save Details"}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -1,8 +1,12 @@
 import { api } from "../../../api/axios";
 import type { Client, ClientListResponse, ClientPayload } from "../types";
 
-export async function getClients() {
-  const response = await api.get<ClientListResponse>("/clients");
+import type { PaginationParams } from "../../../types/api";
+
+export async function getClients(params?: PaginationParams) {
+  const response = await api.get<ClientListResponse>("/clients", {
+    params,
+  });
 
   return response.data;
 }

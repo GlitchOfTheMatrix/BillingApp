@@ -1,36 +1,88 @@
 .sidebar {
-  width: 240px;
+  width: var(--sidebar-width);
   min-height: 100vh;
-  padding: 2rem 1rem;
-  border-right: 1px solid #e5e5e5;
+  padding: var(--space-6) var(--space-4);
+  border-right: 1px solid var(--color-border);
+  background-color: var(--color-bg-elevated);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-6);
+  flex-shrink: 0;
+  transition: transform var(--transition-slow);
 }
 
 .logo {
   text-align: center;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-600);
+  letter-spacing: -0.02em;
+  padding: var(--space-2) 0;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-1);
+  flex: 1;
 }
 
 .link {
-  text-decoration: none;
-  color: inherit;
-  padding: 0.9rem 1rem;
-  border-radius: 8px;
-  transition: 0.2s;
+  display: block;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .link:hover {
-  background: #f5f5f5;
+  background-color: var(--color-gray-100);
+  color: var(--color-text-primary);
 }
 
 .active {
-  font-weight: 600;
-  background: #ececec;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-600);
+  background-color: var(--color-primary-50);
+}
+
+.active:hover {
+  background-color: var(--color-primary-100);
+}
+
+/* ── Mobile overlay ── */
+.overlay {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-overlay);
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: var(--color-bg-overlay);
+    z-index: calc(var(--z-overlay) - 1);
+    animation: fadeIn var(--transition-fast) ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

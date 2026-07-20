@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "../../types/api";
+
 export interface Payment {
   id: string;
   invoice_id: string;
@@ -12,12 +14,6 @@ export interface Payment {
   updated_at: string;
 }
 
-export interface PaymentListResponse {
-  data: Payment[] | null;
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-}
+export type PaymentListResponse = PaginatedResponse<Payment>;
 
 export type PaymentPayload = Omit<Payment, "id" | "created_at" | "updated_at">;

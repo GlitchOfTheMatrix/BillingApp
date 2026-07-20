@@ -1,0 +1,54 @@
+.listGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.docMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  text-transform: capitalize;
+}
+
+.statusDraft {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.statusSent {
+  background-color: var(--color-info-50);
+  color: var(--color-info-500);
+}
+
+.statusAccepted {
+  background-color: var(--color-success-50);
+  color: var(--color-success-600);
+}
+
+.statusPaid {
+  background-color: var(--color-success-50);
+  color: var(--color-success-700);
+}
+
+.statusCancelled {
+  background-color: var(--color-danger-50);
+  color: var(--color-danger-600);
+}
+
+.total {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}

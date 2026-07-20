@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import CompanyForm from "../../features/company/components/CompanyForm/CompanyForm";
 import {
@@ -9,13 +10,15 @@ import {
 } from "../../features/company/api/companyApi";
 import type { CompanyDetails } from "../../features/company/types";
 import type { CompanyFormValues } from "../../features/company/schemas/companySchema";
+import PageHeader from "../../components/common/PageHeader/PageHeader";
+import Button from "../../components/common/Button/Button";
+import ConfirmDialog from "../../components/common/ConfirmDialog/ConfirmDialog";
+import { useLoader } from "../../contexts/LoaderContext";
 
 export default function CompanyPage() {
   const [company, setCompany] = useState<CompanyDetails | null>(null);
-
-  const [loading, setLoading] = useState(true);
-
-  const [saving, setSaving] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
 
   useEffect(() => {
     loadCompany();
@@ -23,55 +26,72 @@ export default function CompanyPage() {
 
   async function loadCompany() {
     try {
+      showLoader();
       const response = await getCompanies();
-
       setCompany(response.data[0] ?? null);
+    } catch {
+      toast.error("Failed to load company details.");
     } finally {
-      setLoading(false);
+      hideLoader();
     }
   }
 
   async function handleSubmit(values: CompanyFormValues) {
     try {
-      setSaving(true);
+      showLoader();
 
       if (company) {
         await updateCompany(company.id, values);
+        toast.success("Company details updated successfully");
       } else {
         await createCompany(values);
+        toast.success("Company details saved successfully");
       }
 
       await loadCompany();
+    } catch {
+      toast.error("Failed to save company details.");
+      hideLoader();
+    }
+  }
+
+  async function handleDeleteConfirm() {
+    if (!company) return;
+    try {
+      showLoader();
+      await deleteCompany(company.id);
+      toast.success("Company details deleted");
+      setCompany(null);
+      setDeleteDialogOpen(false);
+    } catch {
+      toast.error("Failed to delete company details.");
     } finally {
-      setSaving(false);
+      hideLoader();
     }
-  }
-
-  async function handleDelete() {
-    if (!company) {
-      return;
-    }
-
-    await deleteCompany(company.id);
-
-    setCompany(null);
-  }
-
-  if (loading) {
-    return <h2>Loading...</h2>;
   }
 
   return (
     <>
-      <h1>Company Details</h1>
+      <PageHeader title="Company Details" subtitle="Manage your business information">
+        {company && (
+          <Button variant="danger" size="sm" onClick={() => setDeleteDialogOpen(true)}>
+            Delete Company
+          </Button>
+        )}
+      </PageHeader>
 
       <CompanyForm
         initialData={company ?? undefined}
-        isSubmitting={saving}
         onSubmit={handleSubmit}
       />
 
-      {company && <button onClick={handleDelete}>Delete Company</button>}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete Company Details"
+        message="Are you sure you want to delete all company details? This will remove your business information from all documents."
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
     </>
   );
 }

@@ -3,5 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--space-6);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-50) 0%,
+    var(--color-gray-100) 50%,
+    var(--color-primary-50) 100%
+  );
 }

@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "../../types/api";
+
 export interface CompanyDetails {
   id: string;
   company_name: string;
@@ -16,13 +18,7 @@ export interface CompanyDetails {
   updated_at: string;
 }
 
-export interface CompanyListResponse {
-  data: CompanyDetails[];
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-}
+export type CompanyListResponse = PaginatedResponse<CompanyDetails>;
 
 export type CompanyPayload = Omit<
   CompanyDetails,

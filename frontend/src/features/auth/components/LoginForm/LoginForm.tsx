@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../../app/router/routes";
 import { useAuth } from "../../hooks/useAuth";
 import { loginSchema, type LoginFormValues } from "../../schemas/loginSchema";
+import Button from "../../../../components/common/Button/Button";
 import styles from "./LoginForm.module.css";
 
 export default function LoginForm() {
@@ -32,8 +33,6 @@ export default function LoginForm() {
 
       navigate(ROUTES.DASHBOARD);
     } catch (error: unknown) {
-      // Log unexpected error for debugging
-      // Set a user-friendly message; if the error contains a message use it
       console.error(error);
 
       let message: string;
@@ -74,6 +73,7 @@ export default function LoginForm() {
         <label htmlFor="password">Password</label>
 
         <input
+          id="password"
           type="password"
           placeholder="••••••••"
           {...register("password")}
@@ -84,9 +84,14 @@ export default function LoginForm() {
         )}
       </div>
 
-      <button type="submit" disabled={isSubmitting} className={styles.button}>
+      <Button
+        type="submit"
+        loading={isSubmitting}
+        fullWidth
+        size="lg"
+      >
         {isSubmitting ? "Signing in..." : "Sign In"}
-      </button>
+      </Button>
     </form>
   );
 }

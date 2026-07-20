@@ -1,0 +1,22 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.required {
+  color: var(--color-danger-500);
+  margin-left: 2px;
+}
+
+.error {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger-600);
+  margin-top: var(--space-1);
+}

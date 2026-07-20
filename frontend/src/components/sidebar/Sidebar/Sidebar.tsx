@@ -1,26 +1,46 @@
 import { NavLink } from "react-router-dom";
 
-import { NAV_ITEMS } from "../../../app/router/routes";
+import { NAV_ITEMS, ROUTES } from "../../../app/router/routes";
 import styles from "./Sidebar.module.css";
 
-export default function Sidebar() {
-  return (
-    <aside className={styles.sidebar}>
-      <h2 className={styles.logo}>Billing App</h2>
+interface SidebarProps {
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+}
 
-      <nav className={styles.nav}>
-        {NAV_ITEMS.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              isActive ? `${styles.link} ${styles.active}` : styles.link
-            }
-          >
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+  return (
+    <>
+      {isOpen && (
+        <div
+          className={styles.overlay}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}
+        aria-label="Main navigation"
+      >
+        <h2 className={styles.logo}>BillingApp</h2>
+
+        <nav className={styles.nav}>
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === ROUTES.DASHBOARD}
+              className={({ isActive }) =>
+                isActive ? `${styles.link} ${styles.active}` : styles.link
+              }
+              onClick={onClose}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+    </>
   );
 }

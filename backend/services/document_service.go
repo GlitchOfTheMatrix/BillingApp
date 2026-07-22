@@ -110,6 +110,56 @@ func (s *DocumentService) DuplicateDocument(id uuid.UUID) (*models.Document, err
 	now := time.Now()
 
 	document.ID = uuid.New()
+	document.DocumentNumber = document.DocumentNumber + "-COPY"
+	document.Status = models.DocumentStatusDraft
+	document.CreatedAt = now
+	document.UpdatedAt = now
+
+	items, err := s.repo.GetItemsByDocumentID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	document.Items = items
+
+	for i := range document.Items {
+		document.Items[i].ID = uuid.New()
+		document.Items[i].DocumentID = document.ID
+		document.Items[i].CreatedAt = now
+		document.Items[i].UpdatedAt = now
+	}
+
+	if err := s.repo.Create(document); err != nil {
+		return nil, err
+	}
+
+	return document, nil
+}
+
+func (s *DocumentService) GenerateDocumentFromSource(id uuid.UUID, targetType models.DocumentType) (*models.Document, error) {
+	document, err := s.GetDocumentByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+
+	document.ID = uuid.New()
+	
+	// Determine prefix based on target type
+	prefix := ""
+	switch targetType {
+	case models.DocumentTypeProforma:
+		prefix = "PI-"
+	case models.DocumentTypeInvoice:
+		prefix = "INV-"
+	default:
+		prefix = "DOC-"
+	}
+	document.DocumentNumber = prefix + document.DocumentNumber + "-GEN"
+	
+	document.DocumentType = targetType
+	document.SourceDocumentID = &id
 	document.Status = models.DocumentStatusDraft
 	document.CreatedAt = now
 	document.UpdatedAt = now

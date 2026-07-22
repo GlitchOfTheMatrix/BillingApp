@@ -12,6 +12,12 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
@@ -24,6 +30,8 @@ export interface AuthContextType {
   isLoading: boolean;
 
   login: (payload: LoginRequest) => Promise<void>;
+  
+  register: (payload: RegisterRequest) => Promise<void>;
 
   logout: () => void;
 }

@@ -8,8 +8,9 @@ import {
   getDocuments,
   downloadDocumentPDF,
   duplicateDocument,
+  generateDocumentFromSource,
 } from "../../features/documents/api/documentApi";
-import type { Document, DocumentStatus } from "../../features/documents/types";
+import type { Document, DocumentStatus, DocumentType } from "../../features/documents/types";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../components/common/Pagination/Pagination";
 import SearchBar from "../../components/common/SearchBar/SearchBar";
@@ -99,6 +100,18 @@ export default function DocumentsPage() {
     }
   }
 
+  async function handleGenerate(id: string, targetType: DocumentType) {
+    try {
+      showLoader();
+      await generateDocumentFromSource(id, targetType);
+      toast.success(`Generated ${targetType.replace("_", " ")} successfully`);
+      await loadDocuments();
+    } catch {
+      toast.error(`Failed to generate ${targetType.replace("_", " ")}.`);
+      hideLoader();
+    }
+  }
+
   return (
     <>
       <PageHeader title="Documents">
@@ -140,6 +153,31 @@ export default function DocumentsPage() {
                 <Link to={`/documents/${doc.id}/edit`}>
                   <Button variant="secondary" size="sm">Edit</Button>
                 </Link>
+
+                {/* Document Flow Generation */}
+                {doc.document_type === "quotation" && (
+                  <Button variant="primary" size="sm" onClick={() => handleGenerate(doc.id, "proforma")}>
+                    Generate Proforma Invoice
+                  </Button>
+                )}
+                {doc.document_type === "proforma" && (
+                  <Button variant="primary" size="sm" onClick={() => handleGenerate(doc.id, "tax_invoice")}>
+                    Generate Tax Invoice
+                  </Button>
+                )}
+
+                {/* View Linked Document */}
+                {doc.document_type === "proforma" && doc.source_document_id && (
+                  <Link to={`/documents/${doc.source_document_id}/view`}>
+                    <Button variant="secondary" size="sm">View Quotation</Button>
+                  </Link>
+                )}
+                {doc.document_type === "tax_invoice" && doc.source_document_id && (
+                  <Link to={`/documents/${doc.source_document_id}/view`}>
+                    <Button variant="secondary" size="sm">View Proforma Invoice</Button>
+                  </Link>
+                )}
+
                 <Button variant="secondary" size="sm" onClick={() => handleDuplicate(doc.id)}>
                   Duplicate
                 </Button>

@@ -5,12 +5,14 @@ import ProtectedRoute from "../../components/guards/ProtectedRoute";
 import PublicRoute from "../../components/guards/PublicRoute";
 import DashboardLayout from "../../layouts/DashboardLayout/DashboardLayout";
 import LoginPage from "../../pages/auth/LoginPage";
+import RegisterPage from "../../pages/auth/RegisterPage";
 import DashboardPage from "../../pages/dashboard/DashboardPage";
 import CompanyPage from "../../pages/company/CompanyPage";
 import ClientsPage from "../../pages/clients/ClientsPage";
 import DocumentsPage from "../../pages/documents/DocumentsPage";
 import CreateDocumentPage from "../../pages/documents/CreateDocumentPage";
 import EditDocumentPage from "../../pages/documents/EditDocumentPage";
+import ViewDocumentPage from "../../pages/documents/ViewDocumentPage";
 import PaymentsPage from "../../pages/payments/PaymentsPage";
 import NotFoundPage from "../../pages/NotFoundPage";
 
@@ -19,6 +21,7 @@ export default function AppRouter() {
     <Routes>
       <Route element={<PublicRoute />}>
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
       </Route>
 
       <Route element={<ProtectedRoute />}>
@@ -37,6 +40,11 @@ export default function AppRouter() {
           />
 
           <Route path={ROUTES.EDIT_DOCUMENT} element={<EditDocumentPage />} />
+
+          <Route
+            path={ROUTES.VIEW_DOCUMENT}
+            element={<ViewDocumentPage />}
+          />
 
           <Route path={ROUTES.PAYMENTS} element={<PaymentsPage />} />
         </Route>

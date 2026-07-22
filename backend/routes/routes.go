@@ -40,6 +40,7 @@ func Setup(
 	documents.Put("/:id", documentHandler.UpdateDocument)
 	documents.Delete("/:id", documentHandler.DeleteDocument)
 	documents.Post("/:id/duplicate", documentHandler.DuplicateDocument)
+	documents.Post("/:id/generate", documentHandler.GenerateDocumentFromSource)
 
 	users := api.Group("/users", middleware.RequireAuth, middleware.RequireRole("admin"))
 	users.Get("/", userHandler.GetAllUsers)

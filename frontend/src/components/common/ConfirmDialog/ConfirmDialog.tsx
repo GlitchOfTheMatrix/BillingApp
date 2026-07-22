@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Button from "../Button/Button";
 import styles from "./ConfirmDialog.module.css";
 
@@ -23,14 +23,6 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  const cancelRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (open) {
-      cancelRef.current?.focus();
-    }
-  }, [open]);
-
   useEffect(() => {
     if (!open) return;
 
@@ -65,7 +57,6 @@ export default function ConfirmDialog({
 
         <div className={styles.actions}>
           <Button
-            ref={cancelRef}
             variant="secondary"
             onClick={onCancel}
             disabled={loading}

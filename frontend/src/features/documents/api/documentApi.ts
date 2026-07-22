@@ -4,6 +4,7 @@ import type {
   CreateDocumentPayload,
   Document,
   DocumentListResponse,
+  DocumentType,
 } from "../types";
 
 import type { PaginationParams } from "../../../types/api";
@@ -57,5 +58,10 @@ export async function downloadDocumentPDF(id: string, documentNumber: string) {
 
 export async function duplicateDocument(id: string) {
   const response = await api.post<Document>(`/documents/${id}/duplicate`);
+  return response.data;
+}
+
+export async function generateDocumentFromSource(id: string, targetType: DocumentType) {
+  const response = await api.post<Document>(`/documents/${id}/generate`, { target_type: targetType });
   return response.data;
 }

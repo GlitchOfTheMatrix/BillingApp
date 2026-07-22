@@ -42,7 +42,7 @@ export default function DocumentForm({ initialData, onSubmit }: Props) {
 
   // Use a ref to track if we need to recalculate, avoiding the infinite loop
   // that occurred when watching `items` directly in a useEffect dependency array.
-  const recalcTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const recalcTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const recalculateTotals = useCallback(() => {
     const currentItems = getValues("items");

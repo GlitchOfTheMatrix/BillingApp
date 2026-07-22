@@ -8,7 +8,7 @@ import {
   getCompanies,
   updateCompany,
 } from "../../features/company/api/companyApi";
-import type { CompanyDetails } from "../../features/company/types";
+import type { CompanyDetails, CompanyPayload } from "../../features/company/types";
 import type { CompanyFormValues } from "../../features/company/schemas/companySchema";
 import PageHeader from "../../components/common/PageHeader/PageHeader";
 import Button from "../../components/common/Button/Button";
@@ -28,7 +28,7 @@ export default function CompanyPage() {
     try {
       showLoader();
       const response = await getCompanies();
-      setCompany(response.data[0] ?? null);
+      setCompany(response.data?.[0] ?? null);
     } catch {
       toast.error("Failed to load company details.");
     } finally {
@@ -40,11 +40,16 @@ export default function CompanyPage() {
     try {
       showLoader();
 
+      const payload: CompanyPayload = {
+        ...values,
+        email: values.email ?? "",
+      };
+
       if (company) {
-        await updateCompany(company.id, values);
+        await updateCompany(company.id, payload);
         toast.success("Company details updated successfully");
       } else {
-        await createCompany(values);
+        await createCompany(payload);
         toast.success("Company details saved successfully");
       }
 

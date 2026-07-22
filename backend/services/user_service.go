@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -25,6 +26,12 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 }
 
 func (s *UserService) Register(req *models.RegisterRequest) error {
+	existingUser, err := s.repo.GetByEmail(req.Email)
+	fmt.Println("GetByEmail returned:", existingUser, "error:", err)
+	if existingUser != nil {
+		return errors.New("an account with this email already exists")
+	}
+
 	hash, err := bcrypt.GenerateFromPassword(
 		[]byte(req.Password),
 		bcrypt.DefaultCost,

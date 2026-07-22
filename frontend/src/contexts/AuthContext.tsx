@@ -6,7 +6,8 @@ import type {
   LoginRequest,
   User,
 } from "../features/auth/types";
-import { loginApi, meApi } from "../features/auth/api/authApi";
+import { loginApi, meApi, registerApi } from "../features/auth/api/authApi";
+import type { RegisterRequest } from "../features/auth/types";
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -44,17 +45,20 @@ export function AuthContextProvider({ children }: Props) {
   }
 
   const login = useCallback(async (payload: LoginRequest) => {
-    try {
-      setIsLoading(true);
+    const response = await loginApi(payload);
 
-      const response = await loginApi(payload);
+    tokenStorage.setTokens(response.access_token, response.refresh_token);
 
-      tokenStorage.setTokens(response.access_token, response.refresh_token);
+    setUser(response.user);
+  }, []);
+  const register = useCallback(async (payload: RegisterRequest) => {
+    await registerApi(payload);
 
-      setUser(response.user);
-    } finally {
-      setIsLoading(false);
-    }
+    const response = await loginApi({ email: payload.email, password: payload.password });
+
+    tokenStorage.setTokens(response.access_token, response.refresh_token);
+
+    setUser(response.user);
   }, []);
 
   const logout = useCallback(() => {
@@ -72,10 +76,12 @@ export function AuthContextProvider({ children }: Props) {
       isLoading,
 
       login,
+      
+      register,
 
       logout,
     }),
-    [user, isLoading, login, logout],
+    [user, isLoading, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

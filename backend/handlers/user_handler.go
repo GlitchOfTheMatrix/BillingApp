@@ -32,6 +32,9 @@ func (h *UserHandler) Register(c *fiber.Ctx) error {
 
 	err := h.service.Register(&req)
 	if err != nil {
+		if err.Error() == "an account with this email already exists" {
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": err.Error()})
+		}
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 

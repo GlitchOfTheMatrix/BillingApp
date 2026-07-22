@@ -18,11 +18,11 @@ export const documentItemSchema = z.object({
 
 export const documentSchema = z.object({
   document_type: z.enum(["quotation", "proforma", "tax_invoice"]),
-  document_number: z.string(),
-  document_date: z.string(),
-  client_id: z.string(),
-  order_number: z.string(),
-  order_date: z.string(),
+  document_number: z.string().min(1, "Document number is required"),
+  document_date: z.string().min(1, "Document date is required"),
+  client_id: z.string().min(1, "Client is required"),
+  order_number: z.string().optional().or(z.literal("")),
+  order_date: z.string().optional().or(z.literal("")),
   status: z.enum(["draft", "sent", "accepted", "paid", "cancelled"]),
   subtotal: z.string(),
   shipping: z.string(),

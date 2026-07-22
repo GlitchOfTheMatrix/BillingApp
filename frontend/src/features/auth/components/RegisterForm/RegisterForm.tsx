@@ -1,54 +1,45 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router-dom";
-import { isAxiosError } from "axios";
+import { useNavigate, Link } from "react-router-dom";
 
 import { ROUTES } from "../../../../app/router/routes";
 import { useAuth } from "../../hooks/useAuth";
-import { loginSchema, type LoginFormValues } from "../../schemas/loginSchema";
+import { registerSchema, type RegisterFormValues } from "../../schemas/registerSchema";
 import Button from "../../../../components/common/Button/Button";
-import styles from "./LoginForm.module.css";
+import styles from "./RegisterForm.module.css";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const navigate = useNavigate();
-
-  const { login } = useAuth();
-
+  const { register: registerUser } = useAuth();
   const [serverError, setServerError] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
     mode: "onBlur",
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: RegisterFormValues) => {
     try {
       setServerError("");
-
-      await login(data);
-
+      await registerUser(data);
       navigate(ROUTES.DASHBOARD);
-    } catch (error: unknown) {
-      let message = "Invalid email or password.";
+    } catch (error: any) {
+      let message = "An unknown error occurred.";
       
-      if (isAxiosError(error) && error.response?.data) {
-        const data = error.response.data as any;
+      if (error?.response?.data) {
+        const data = error.response.data;
         if (data.error) {
-          message = data.error;
-        } else if (data.errors && Array.isArray(data.errors)) {
-          message = data.errors.map((e: any) => e.FailedField + " " + e.Tag).join(", ");
-        } else if (error.message) {
-          message = error.message;
+          message = String(data.error);
+        } else {
+          message = JSON.stringify(data);
         }
-      } else if (error instanceof Error) {
+      } else if (error?.message) {
         message = error.message;
-      } else if (typeof error === "string") {
-        message = error;
       }
       
       setServerError(message);
@@ -57,20 +48,35 @@ export default function LoginForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-      <h1 className={styles.title}>Sign In</h1>
+      <h1 className={styles.title}>Create an Account</h1>
 
-      {serverError && <p className={styles.error}>{serverError}</p>}
+      {serverError && (
+        <div style={{ padding: '12px', backgroundColor: '#dc2626', color: 'white', borderRadius: '8px', textAlign: 'center', fontWeight: 'bold' }}>
+          {serverError}
+        </div>
+      )}
+
+      <div className={styles.field}>
+        <label htmlFor="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          placeholder="John Doe"
+          {...register("name")}
+        />
+        {errors.name && (
+          <span className={styles.validation}>{errors.name.message}</span>
+        )}
+      </div>
 
       <div className={styles.field}>
         <label htmlFor="email">Email</label>
-
         <input
           id="email"
           type="email"
           placeholder="john@example.com"
           {...register("email")}
         />
-
         {errors.email && (
           <span className={styles.validation}>{errors.email.message}</span>
         )}
@@ -78,14 +84,12 @@ export default function LoginForm() {
 
       <div className={styles.field}>
         <label htmlFor="password">Password</label>
-
         <input
           id="password"
           type="password"
           placeholder="••••••••"
           {...register("password")}
         />
-
         {errors.password && (
           <span className={styles.validation}>{errors.password.message}</span>
         )}
@@ -97,11 +101,11 @@ export default function LoginForm() {
         fullWidth
         size="lg"
       >
-        {isSubmitting ? "Signing in..." : "Sign In"}
+        {isSubmitting ? "Creating account..." : "Sign Up"}
       </Button>
 
       <div className={styles.link}>
-        Don't have an account? <Link to={ROUTES.REGISTER}>Sign Up</Link>
+        Already have an account? <Link to={ROUTES.LOGIN}>Sign In</Link>
       </div>
     </form>
   );

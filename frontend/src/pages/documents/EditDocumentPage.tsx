@@ -45,11 +45,25 @@ export default function EditDocumentPage() {
 
     try {
       showLoader();
-      await updateDocument(id, values);
+      
+      const payload: any = { ...values };
+      
+      if (payload.document_date) {
+        payload.document_date = new Date(payload.document_date).toISOString();
+      }
+      
+      if (payload.order_date) {
+        payload.order_date = new Date(payload.order_date).toISOString();
+      } else {
+        payload.order_date = null;
+      }
+
+      await updateDocument(id, payload);
       toast.success("Document updated successfully");
       navigate(ROUTES.DOCUMENTS);
-    } catch {
-      toast.error("Failed to update document.");
+    } catch (error: any) {
+      const msg = error?.response?.data?.error || JSON.stringify(error?.response?.data?.errors) || "Failed to update document.";
+      toast.error(msg);
       hideLoader();
     }
   }

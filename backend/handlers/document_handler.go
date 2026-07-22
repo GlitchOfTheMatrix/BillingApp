@@ -185,7 +185,17 @@ func (h *DocumentHandler) GeneratePDF(c *fiber.Ctx) error {
 	}
 	company := &companies[0]
 
-	pdfBytes, err := services.GenerateInvoicePDF(document, client, company)
+	var pdfBytes []byte
+
+	switch document.DocumentType {
+	case models.DocumentTypeQuotation:
+		pdfBytes, err = services.GenerateQuotationPDF(document, client, company)
+	case models.DocumentTypeProforma:
+		pdfBytes, err = services.GenerateProformaPDF(document, client, company)
+	default:
+		pdfBytes, err = services.GenerateInvoicePDF(document, client, company)
+	}
+
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to generate PDF",
@@ -195,4 +205,27 @@ func (h *DocumentHandler) GeneratePDF(c *fiber.Ctx) error {
 	c.Set("Content-Type", "application/pdf")
 	c.Set("Content-Disposition", `attachment; filename="invoice_`+document.DocumentNumber+`.pdf"`)
 	return c.Send(pdfBytes)
+}
+
+func (h *DocumentHandler) GenerateDocumentFromSource(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid document ID"})
+	}
+
+	var req struct {
+		TargetType models.DocumentType `json:"target_type" validate:"required"`
+	}
+
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	doc, err := h.service.GenerateDocumentFromSource(id, req.TargetType)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(doc)
 }

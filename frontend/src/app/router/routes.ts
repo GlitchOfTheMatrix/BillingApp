@@ -1,11 +1,13 @@
 export const ROUTES = {
   LOGIN: "/login",
+  REGISTER: "/register",
   DASHBOARD: "/",
   COMPANY: "/company",
   CLIENTS: "/clients",
   DOCUMENTS: "/documents",
   CREATE_DOCUMENT: "/documents/new",
   EDIT_DOCUMENT: "/documents/:id/edit",
+  VIEW_DOCUMENT: "/documents/:id/view",
   PAYMENTS: "/payments",
 };
 

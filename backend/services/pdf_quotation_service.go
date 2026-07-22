@@ -16,7 +16,7 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/props"
 )
 
-func GenerateInvoicePDF(
+func GenerateQuotationPDF(
 	doc *models.Document,
 	client *models.Client,
 	company *models.CompanyDetails,
@@ -76,11 +76,11 @@ func GenerateInvoicePDF(
 
 	m.AddRows(row.New(5))
 
-	// 2. INVOICE TITLE
+	// 2. QUOTATION TITLE
 	m.AddRows(
 		row.New(20).Add(
 			col.New(6).Add(
-				text.New("TAX INVOICE", props.Text{Style: fontstyle.Bold, Size: 14}),
+				text.New("QUOTATION", props.Text{Style: fontstyle.Bold, Size: 14}),
 				text.New(doc.DocumentNumber, props.Text{Style: fontstyle.Bold, Size: 11, Top: 6}),
 				text.New(doc.DocumentDate.Format("02th January 2006"), props.Text{Style: fontstyle.Bold, Size: 11, Top: 12}),
 			),
@@ -146,7 +146,7 @@ func GenerateInvoicePDF(
 	m.AddRows(
 		row.New(8).Add(
 			col.New(1).Add(text.New("S. No", textHeaderStyle)).WithStyle(headerStyle),
-			col.New(5).Add(text.New("Description of Product / Services", props.Text{Style: fontstyle.Bold, Size: 10, Align: align.Center, Top: 2})).WithStyle(headerStyle),
+			col.New(5).Add(text.New("Software Licensing Services", props.Text{Style: fontstyle.Bold, Size: 10, Align: align.Center, Top: 2})).WithStyle(headerStyle),
 			col.New(1).Add(text.New("Qty", textHeaderStyle)).WithStyle(headerStyle),
 			col.New(2).Add(text.New("Rate", textHeaderStyle)).WithStyle(headerStyle),
 			col.New(1).Add(text.New("Per", textHeaderStyle)).WithStyle(headerStyle),
@@ -192,7 +192,7 @@ func GenerateInvoicePDF(
 	// Line 2:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("- Fully paid Invoice OR Payment due date "+doc.DocumentDate.AddDate(0, 0, 30).Format("02th Jan 2006")+" – 5100%", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Quotation Validity: 30 days", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 			col.New(2).Add(text.New("Shipping | Installation", props.Text{Size: 8, Top: 1, Align: align.Center})).WithStyle(&props.Cell{BackgroundColor: headerBgColor, BorderType: border.Full, BorderThickness: 0.2}),
 			col.New(2).Add(text.New("( - ) "+doc.Shipping.StringFixed(2), props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BackgroundColor: headerBgColor, BorderType: border.Full, BorderThickness: 0.2}),
 		),
@@ -201,8 +201,8 @@ func GenerateInvoicePDF(
 	// Line 3:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("- Delivery: Electronic Software Delivery.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(2).Add(text.New("IGST @18%", props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Payment Terms: 100% advance against with Purchase Order.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(2).Add(text.New("IGST", props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 			col.New(2).Add(text.New(doc.IGST.StringFixed(2), props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 		),
 	)
@@ -210,8 +210,8 @@ func GenerateInvoicePDF(
 	// Line 4:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("- Support: Includes OEM portal-based support.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(2).Add(text.New("CGST @ 9%", props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Delivery: Electronic Software Delivery (ESD) via email within FIVE", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(2).Add(text.New("CGST", props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 			col.New(2).Add(text.New(doc.CGST.StringFixed(2), props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 		),
 	)
@@ -219,8 +219,8 @@ func GenerateInvoicePDF(
 	// Line 5:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("- Installation: Onsite/offline installation & support is not included.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(2).Add(text.New("SGST @ 9%", props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("  business days of receipt of payment.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(2).Add(text.New("SGST", props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 			col.New(2).Add(text.New(doc.SGST.StringFixed(2), props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 		),
 	)
@@ -228,7 +228,7 @@ func GenerateInvoicePDF(
 	// Line 6:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("- Overdue accounts subject to interest @ 2% per month.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Taxes: GST @ 18% or as applicable at the time of Invoicing.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 			col.New(2).Add(text.New("Grand Total", props.Text{Size: 9, Top: 1, Align: align.Center, Style: fontstyle.Bold})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 			col.New(2).Add(text.New(doc.GrandTotal.StringFixed(2), props.Text{Size: 9, Top: 1, Align: align.Right, Right: 1, Style: fontstyle.Bold})).WithStyle(&props.Cell{BorderType: border.Full, BorderThickness: 0.2}),
 		),
@@ -237,7 +237,7 @@ func GenerateInvoicePDF(
 	// Line 7:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("- Subject to DELHI JURISDICTION", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Support: Includes OEM portal-based support.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 			col.New(4).Add(text.New("Amount in words", props.Text{Size: 9, Top: 1, Align: align.Center})).WithStyle(&props.Cell{BorderType: border.Left | border.Top | border.Right, BorderThickness: 0.2}),
 		),
 	)
@@ -245,90 +245,40 @@ func GenerateInvoicePDF(
 	// Line 8:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Installation: Onsite/offline installation & support is not included.", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 			col.New(4).Add(text.New(doc.AmountInWords, props.Text{Size: 9, Top: 1, Align: align.Center})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 		),
 	)
 
-	// Line 9 (Bank Details Header)
+	// Line 9:
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("Bank Details for NEFT/RTGS :", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(8).Add(text.New("- Subject to DELHI JURISDICTION", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 			col.New(4).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 		),
 	)
 
-	// Line 10 (Bank Name)
+	// Line 10 (Spacer inside left)
 	m.AddRows(
 		row.New(6).Add(
-			col.New(8).Add(text.New("ACCOUNT NAME: "+company.CompanyName, props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
+			col.New(8).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 			col.New(4).Add(text.New("For MILLENNIUM SYSTEMS", props.Text{Size: 10, Top: 1, Align: align.Center, Style: fontstyle.Bold})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 		),
 	)
 
-	// Line 11 (Account number)
-	m.AddRows(
-		row.New(6).Add(
-			col.New(8).Add(text.New("ACCOUNT NUMBER: "+company.AccountNumber, props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(4).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-		),
-	)
-
-	// Line 12 (IFSC)
-	m.AddRows(
-		row.New(6).Add(
-			col.New(8).Add(text.New("IFSC: "+company.IFSCCode, props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(4).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-		),
-	)
-
-	// Line 13 (Bank Name from company)
-	m.AddRows(
-		row.New(6).Add(
-			col.New(8).Add(text.New("BANK NAME: "+company.BankName, props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(4).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-		),
-	)
-	
-	// Line 14 (Branch)
-	m.AddRows(
-		row.New(6).Add(
-			col.New(8).Add(text.New("BRANCH: "+company.Branch, props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(4).Add(text.New("Authorized Signatory", props.Text{Size: 10, Top: 1, Align: align.Right, Right: 2})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-		),
-	)
-
-	// Line 15 (Enclosures Space)
-	m.AddRows(
-		row.New(6).Add(
-			col.New(8).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(4).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right | border.Bottom, BorderThickness: 0.2}),
-		),
-	)
-
-	// Line 16 (Enclosures)
+	// Line 11 (Enclosures)
 	m.AddRows(
 		row.New(6).Add(
 			col.New(8).Add(text.New("Enclosures:", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
-			col.New(4).Add(), // No border, blank
+			col.New(4).Add().WithStyle(&props.Cell{BorderType: border.Left | border.Right, BorderThickness: 0.2}),
 		),
 	)
 	
-	// Line 17 (Enclosures value)
+	// Line 12
 	m.AddRows(
-		row.New(10).Add(
-			col.New(8).Add(text.New("Copy of Cancelled Cheque | PAN | GST | MSME", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right | border.Bottom, BorderThickness: 0.2}),
-			col.New(4).Add(),
-		),
-	)
-
-	m.AddRows(row.New(10)) // Spacer
-
-	m.AddRows(
-		row.New(10).Add(
-			col.New(12).Add(
-				text.New("Thank you for your business!", props.Text{Style: fontstyle.Bold, Size: 12, Align: align.Center}),
-			),
+		row.New(12).Add(
+			col.New(8).Add(text.New("PAN | GST | MSME | Dealership Letter", props.Text{Size: 8, Top: 1, Left: 1})).WithStyle(&props.Cell{BorderType: border.Left | border.Right | border.Bottom, BorderThickness: 0.2}),
+			col.New(4).Add(text.New("Authorized Signatory", props.Text{Size: 10, Top: 6, Align: align.Right, Right: 2})).WithStyle(&props.Cell{BorderType: border.Left | border.Right | border.Bottom, BorderThickness: 0.2}),
 		),
 	)
 
